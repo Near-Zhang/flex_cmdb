@@ -1,0 +1,21 @@
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### pycharm ###
+.idea
+
+### Django ###
+*.log
+*.pot
+*.pyc
+__pycache__
+migrations
+venv
+
+### custom ###
+config.py
+nohup.out
+uwsgi/uwsgi.pid
+uwsgi/uwsgi.log
