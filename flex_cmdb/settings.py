@@ -11,48 +11,51 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from corsheaders.defaults import default_headers
 from config import *
 
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# 基础目录，即项目目录
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
+# 加密相关
+SECRET_KEY = SECRET_KEY
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'tx8!1o-_h8v74h!&$k-khbp_g8ad3=*dpinn_l8iz@5^p#p_8d'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# 调试模式
 DEBUG = True
 
 
+# 域名配置
 ALLOWED_HOSTS = ['*']
 
 
-# Application definition
-
+# 应用列表
 INSTALLED_APPS = [
     'django.contrib.sessions',
+    'rest_framework',
     'asset'
 ]
 
+
+# 中间件
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 ]
 
+
+# 根路由配置
 ROOT_URLCONF = 'flex_cmdb.urls'
 
 
+# WSGI 应用入口
 WSGI_APPLICATION = 'flex_cmdb.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
+# 数据库
 DATABASES = {
      'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -65,9 +68,7 @@ DATABASES = {
 }
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/2.2/topics/i18n/
-
+# 国际化配置
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -78,3 +79,24 @@ USE_L10N = True
 
 USE_TZ = True
 
+
+# DRF 配置
+REST_FRAMEWORK = {
+    # 'DEFAULT_PAGINATION_CLASS': 'common.paginator.Paginator',
+    # 'EXCEPTION_HANDLER': 'common.views.exception_handler',
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S'
+}
+
+
+# CORS 跨域配置
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:8080',
+    'http://op-web.ijunhai.com',
+)
+
+CORS_ALLOW_HEADERS = default_headers + (
+    'X-Junhai-Token',
+    'Access-Control-Allow-Origin'
+)
+
+CORS_ALLOW_CREDENTIALS = True
