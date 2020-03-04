@@ -85,7 +85,8 @@ USE_TZ = True
 REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'common.paginator.Paginator',
     # 'EXCEPTION_HANDLER': 'common.views.exception_handler',
-    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S'
+    'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
+    'UNAUTHENTICATED_USER': 'common.auth.Anonymous'
 }
 
 

@@ -1,0 +1,2 @@
+class Anonymous:
+    pass
