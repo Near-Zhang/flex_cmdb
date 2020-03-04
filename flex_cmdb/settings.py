@@ -43,8 +43,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'common.middleware.AuthMiddleware'
+    'django.middleware.common.CommonMiddleware'
 ]
 
 
@@ -86,7 +85,8 @@ REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'common.paginator.Paginator',
     # 'EXCEPTION_HANDLER': 'common.views.exception_handler',
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
-    'UNAUTHENTICATED_USER': 'common.auth.Anonymous'
+    'UNAUTHENTICATED_USER': None,
+    'UNAUTHENTICATED_TOKEN': None,
 }
 
 
