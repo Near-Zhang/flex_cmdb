@@ -10,12 +10,11 @@ urlpatterns = format_suffix_patterns([
 
 # 框架注册路由
 router = BulkRouter()
-router.register('idc', IDCViewSet, 'idc')
-router.register('regions', RegionViewSet, 'region')
+router.register('idc', IDCViewSet)
+router.register('regions', RegionViewSet)
 router.register('zones', ZoneViewSet)
 
 # 合并路由
 urlpatterns.extend(router.urls)
-print(urlpatterns)
 
 
