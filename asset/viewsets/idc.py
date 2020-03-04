@@ -1,9 +1,10 @@
 from rest_framework_bulk import BulkModelViewSet
+from common.viewsets import ReadWriteViewSet
 from ..models import IDC, Region, Zone
 from ..serializers import IDCSerializer, RegionSerializer, ZoneSerializer
 
 
-class IDCViewSet(BulkModelViewSet):
+class IDCViewSet(ReadWriteViewSet):
     """
     供应商视图集
     """
@@ -12,7 +13,7 @@ class IDCViewSet(BulkModelViewSet):
     lookup_field = 'uuid'
 
 
-class RegionViewSet(BulkModelViewSet):
+class RegionViewSet(ReadWriteViewSet):
     """
     地域视图集
     """
@@ -21,7 +22,7 @@ class RegionViewSet(BulkModelViewSet):
     lookup_field = 'uuid'
 
 
-class ZoneViewSet(BulkModelViewSet):
+class ZoneViewSet(ReadWriteViewSet):
     """
     可用区视图集
     """
