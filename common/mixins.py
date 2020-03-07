@@ -62,7 +62,7 @@ def normalized_exception_handler(exc: Exception, context: dict):
         exc = exceptions.PermissionDenied()
 
     if not isinstance(exc, exceptions.APIException):
-        exc = exceptions.APIException(**exc.args)
+        exc = exceptions.APIException(exc.args)
 
     # 增加额外的响应头部
     headers = {}

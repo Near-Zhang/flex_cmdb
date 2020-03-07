@@ -1,6 +1,15 @@
 from rest_framework.authentication import BaseAuthentication
 
 
+class AnonymousUser:
+    """
+    匿名用户
+    """
+
+    uuid = '0' * 32
+    name = 'anonymous'
+
+
 class TokenAuthentication(BaseAuthentication):
 
     def authenticate(self, request):

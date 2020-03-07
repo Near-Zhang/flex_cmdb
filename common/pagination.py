@@ -15,8 +15,8 @@ class PagePagesizePaginator(PageNumberPagination):
 
     # 页大小参数
     page_size_query_param = 'pagesize'
-    # 默认页大小
-    page_size = 20
+    # 默认页大小，即不分页
+    page_size = 0
     # 最大页大小
     max_page_size = 20
     # 末尾页字符

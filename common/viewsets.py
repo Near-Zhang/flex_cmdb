@@ -20,6 +20,7 @@ class ManageViewSet(ListModelMixin,
     """
     pass
 
+
 class BulkManageViewSet(ListModelMixin,
                        BulkCreateModelMixin,
                        BulkUpdateModelMixin,
