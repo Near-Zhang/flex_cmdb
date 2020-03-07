@@ -196,24 +196,42 @@ class BulkDestroyModelMixin:
         """
         批量删除入口
         """
-        # 获取和筛选查询集，并确认舒服允许批量删除
-        qs = self.get_queryset()
-        filtered = self.filter_queryset(qs)
-        if not self.allow_bulk_destroy(qs, filtered):
-            return get_error_response('not allow bulk delete', code=status.HTTP_400_BAD_REQUEST)
+        # 获取批量删除的查询集
+        queryset = self.filter_queryset(self.get_queryset())
+        del_queryset = self.get_delete_queryset(queryset)
 
         # 执行批量删除
-        self.perform_bulk_destroy(filtered)
+        if del_queryset:
+            self.perform_bulk_destroy(del_queryset)
 
         # 返回响应
-        return get_data_response(None, code=status.HTTP_204_NO_CONTENT)
+        return get_data_response({'count': len(del_queryset)}, code=status.HTTP_204_NO_CONTENT)
 
-    @staticmethod
-    def allow_bulk_destroy(self, qs, filtered):
+    def get_delete_queryset(self, queryset):
         """
-        用于确认是否允许批量删除，若筛选后的查询集为空则返回完整查询集
+        获取需要删除的查询集
         """
-        return qs is not filtered
+        # 确认用于定位的关键字参数
+        lookup_url_kwarg = self.lookup_field
+
+        # 组建参数值的列表
+        id_list = []
+        for item in self.request.data:
+            v = item.get(lookup_url_kwarg)
+            if v: id_list.append(v)
+
+        if not id_list:
+            return None
+
+        # 进行查询集过滤
+        filter_kwargs = {lookup_url_kwarg + '__in': id_list}
+        del_queryset = queryset.filter(**filter_kwargs)
+
+        # 检查权限
+        for obj in del_queryset:
+            self.check_object_permissions(self.request, obj)
+
+        return del_queryset
 
     @staticmethod
     def perform_destroy(instance):
