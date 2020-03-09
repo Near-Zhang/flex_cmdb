@@ -3,6 +3,7 @@ from ..models import IDC, Region, Zone
 from ..serializers import IDCSerializer, RegionSerializer, ZoneSerializer
 
 
+__all__ = ['IDCViewSet', 'RegionViewSet', 'ZoneViewSet']
 
 
 class IDCViewSet(BulkManageViewSet):
