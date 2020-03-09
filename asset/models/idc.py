@@ -1,11 +1,11 @@
 from django.db import models
-from common.models import BaseModel
+from common.models import ResourceModel
 
 
 __all__ = ['IDC', 'Region', 'Zone']
 
 
-class IDC(BaseModel):
+class IDC(ResourceModel):
     """
     供应商信息，通过自行录入
     """
@@ -18,10 +18,10 @@ class IDC(BaseModel):
     flag = models.CharField(max_length=64, unique=True, verbose_name='标识')
     name = models.CharField(max_length=64, unique=True, verbose_name='名字')
     enable = models.BooleanField(default=True, verbose_name='是否启用')
-    comment = models.TextField(null=True, verbose_name='备注')
+    comment = models.TextField(null=True, blank=True, verbose_name='备注')
 
 
-class Region(BaseModel):
+class Region(ResourceModel):
     """
     地域信息，通过云接口同步和获取
     IDC - o2m -> Region
@@ -43,7 +43,7 @@ class Region(BaseModel):
     idc = models.CharField(max_length=32, verbose_name='供应商UUID')
 
 
-class Zone(BaseModel):
+class Zone(ResourceModel):
     """
     可用区信息，通过云接口同步和获取
     Region - o2m -> Zone

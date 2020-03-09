@@ -11,7 +11,7 @@
 *.pot
 *.pyc
 __pycache__
-migrations/*.py
+migrations/
 !/migrations/__init__.py
 venv
 

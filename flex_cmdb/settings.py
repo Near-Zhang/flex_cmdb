@@ -34,6 +34,7 @@ ALLOWED_HOSTS = ['*']
 # 应用列表
 INSTALLED_APPS = [
     'django.contrib.sessions',
+    'django.contrib.staticfiles',
     'rest_framework',
     'asset'
 ]
@@ -68,10 +69,32 @@ DATABASES = {
 }
 
 
+# 模版配置
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages'
+            ],
+        },
+    },
+]
+
+
+# 静态文件配置
+STATIC_URL = '/static/'
+
+
 # 国际化配置
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -82,11 +105,14 @@ USE_TZ = True
 
 # DRF 配置
 REST_FRAMEWORK = {
-    # 'DEFAULT_PAGINATION_CLASS': 'common.paginator.Paginator',
-    # 'EXCEPTION_HANDLER': 'common.views.exception_handler',
+    # 分页类
+    'DEFAULT_PAGINATION_CLASS': 'common.pagination.PagePagesizePaginator',
+    # 异常处理
+    'EXCEPTION_HANDLER': 'common.mixins.normalized_exception_handler',
+    # 时间格式
     'DATETIME_FORMAT': '%Y-%m-%d %H:%M:%S',
-    'UNAUTHENTICATED_USER': None,
-    'UNAUTHENTICATED_TOKEN': None,
+    # 无验证时的用户
+    'UNAUTHENTICATED_USER': 'common.auth.AnonymousUser',
 }
 
 
