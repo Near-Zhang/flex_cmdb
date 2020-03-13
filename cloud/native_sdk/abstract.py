@@ -17,7 +17,6 @@ class AbstractNativeSDK(ABC):
         self._params = {}
         self._already = False
 
-
     def set(self, interface: dict, params: Optional[dict] = None) -> None:
         """
         设置请求必要的信息

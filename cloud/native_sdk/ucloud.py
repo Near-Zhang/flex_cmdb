@@ -97,4 +97,3 @@ class UCloudNativeSDK(AbstractNativeSDK):
         if isinstance(v, float):
             return str(int(v)) if v % 1 == 0 else str(v)
         return str(v)
-

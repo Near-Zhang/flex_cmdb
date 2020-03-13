@@ -27,7 +27,6 @@ class ALiCloudNativeSDK(AbstractNativeSDK):
         # 默认地域
         self._default_region = 'cn-hangzhou'
 
-
     def request(self) -> dict:
         """
         使用原生 sdk 发送请求，返回响应结果
