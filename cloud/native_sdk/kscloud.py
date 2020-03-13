@@ -24,7 +24,7 @@ class KSCloudNativeSDK(AbstractNativeSDK):
 
         # 定义使用默认账号，由于公司在金山云存在多个账号以区分项目，属于定制化
         self._default_account = 'ksyun_kdxss@ijunhai.com'
-        # 默认地域
+        # 默认地域，即使地域不起作用时，该 sdk 也必须传入地域参数
         self._default_region = 'cn-beijing-6'
 
     def request(self) -> dict:
@@ -34,6 +34,7 @@ class KSCloudNativeSDK(AbstractNativeSDK):
         """
         assert self._already, 'request info has not been set，should use self.set()'
 
+        # 先查看请求参数中是否包含地域，否则取默认值
         region = self._params.get('Region', self._default_region)
         session = get_session()
         client = session.create_client(self._interface['module'],

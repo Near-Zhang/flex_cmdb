@@ -24,7 +24,7 @@ class ALiCloudNativeSDK(AbstractNativeSDK):
         """
         super().__init__()
 
-        # 默认地域
+        # 默认地域，即使地域不起作用时，该 sdk 也必须传入地域参数
         self._default_region = 'cn-hangzhou'
 
     def request(self) -> dict:
@@ -58,7 +58,7 @@ class ALiCloudNativeSDK(AbstractNativeSDK):
         生成客户端，并返回客户端对象
         :return: 客户端对象
         """
-        # 即使地域不起作用时，该 sdk 也必须传入地域参数，先查看请求参数中是否包含地域，否则取默认值
+        # 先查看请求参数中是否包含地域，否则取默认值
         region = self._params.get('Region', self._default_region)
         return AcsClient(self._ak_sk[0], self._ak_sk[1], region)
 
