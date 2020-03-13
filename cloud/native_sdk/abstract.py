@@ -35,8 +35,6 @@ class AbstractNativeSDK(ABC):
             if len(missing_param) > 0:
                 raise CloudNativeSDKError(f'param {missing_param} is required')
 
-
-
         # 设置可用标识
         self._already = True
 
