@@ -1,0 +1,219 @@
+region_required: True
+region_name: Region
+native_sdk: QCloudNativeSDK
+cleaner: QCloudCleaner
+req_limit: 20
+actions:
+
+  # 查询地域信息
+  query_regions:
+    region_required: False
+    interface:
+      name: DescribeRegions
+      module: cvm
+      version: v20170312
+      input_params: ~
+      output:
+        data: RegionSet
+        fields:
+          flag:
+            src: data
+            key: Region
+            mapping: ~
+            default: ~
+          name:
+            src: data
+            key: RegionName
+            mapping: ~
+            default: ~
+          state:
+            src: data
+            key: RegionState
+            mapping:
+              AVAILABLE: 0
+              TESTING: 1
+              UNAVAILABLE: 2
+            default: ~
+        hooks:
+          start:
+            base: ~
+            method: ~
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~
+
+  # 查询可用区信息
+  query_zones:
+    region_required: True
+    interface:
+      name: DescribeZones
+      module: cvm
+      version: v20170312
+      input_params:
+        - Region
+      output:
+        data: ZoneSet
+        fields:
+          flag:
+            src: data
+            key: Zone
+            mapping: ~
+            default: ~
+          name:
+            src: data
+            key: ZoneName
+            mapping: ~
+            default: ~
+          state:
+            src: data
+            key: ZoneState
+            mapping:
+              AVAILABLE: 0
+              TESTING: 1
+              UNAVAILABLE: 2
+            default: ~
+        hooks:
+          start:
+            base: ~
+            method: ~
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~
+
+  # 查询主机信息
+  query_hosts:
+    region_required: True
+    interface:
+      name: DescribeInstances
+      module: cvm
+      version: v20170312
+      input_params:
+        - Region
+      output:
+        data: InstanceSet
+        fields:
+          instance_id:
+            src: data
+            key: InstanceId
+            mapping: ~
+            default: ~
+          name:
+            src: data
+            key: InstanceName
+            mapping: ~
+            default: ~
+          pubilc_ip:
+            src: ~
+            key: ~
+            mapping: ~
+            default: ~
+          project:
+            src: data
+            key: Placement.ProjectId
+            mapping: ~
+            default: ~
+        hooks:
+          start:
+            base: ~
+            method: ~
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~
+
+  # 查询项目信息
+  query_projects:
+    region_required: False
+    interface:
+      name: DescribeProject
+      module: account
+      version: v20170312
+      input_params: ~
+      output:
+        data: data
+        fields:
+          project_id:
+            src: data
+            key: projectId
+            mapping: ~
+            default: ~
+          name:
+            src: data
+            key: projectName
+            mapping: ~
+            default: ~
+        hooks:
+          start:
+            base: ~
+            method: ~
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~
+
+  # 查询监控数据
+  query_monitor_data:
+    region_required: True
+    interface:
+      name: GetMonitorData
+      module: monitor
+      version: v20180724
+      input_params:
+        - Region
+        - Namespace
+        - MetricName
+        - Instances
+        - Period
+        - StartTime
+        - EndTime
+      output:
+        data: DataPoints.0.Values
+        fields:
+          host:
+            src: ~
+            key: ~
+            mapping: ~
+            default: ~
+          metirc:
+            src: req
+            key: MetricName
+            mapping:
+              CPUUsage: cpu_usage
+              CPULoadAvg: cpu_load
+              MemUsage: mem_usage
+            default: ~
+          day:
+            src: data
+            key: Day
+            mapping: ~
+            default: ~
+          hour:
+            src: data
+            key: Hour
+            mapping: ~
+            default: ~
+          minute:
+            src: data
+            key: Minute
+            mapping: ~
+            default: ~
+          value:
+            src: data
+            key: Value
+            mapping: ~
+            default: ~
+        hooks:
+          start:
+            base: action
+            method: hook
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~

@@ -1,24 +1,26 @@
 from typing import Optional
 from django.views import View
 from rest_framework.request import Request
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, replace_query_param
 from rest_framework.exceptions import NotFound
 from django.core.paginator import InvalidPage
 from django.db.models import QuerySet
 from collections import OrderedDict
 
 
-class PagePagesizePaginator(PageNumberPagination):
+class PagePagesizePagination(PageNumberPagination):
     """
     基于页的分页器
     """
 
     # 页大小参数
     page_size_query_param = 'pagesize'
-    # 默认页大小，即不分页
+    # 无参数时的页大小，即不分页
     page_size = 0
-    # 最大页大小
-    max_page_size = 20
+    # 分页时的默认页大小
+    default_page_size = 20
+    # 最大页大小，即无限制
+    max_page_size = 0
     # 末尾页字符
     last_page_strings = ('last', 'end')
 
@@ -29,19 +31,35 @@ class PagePagesizePaginator(PageNumberPagination):
     def paginate_queryset(self,
                           queryset: QuerySet,
                           request: Request,
-                          view: Optional[View]=None) -> Optional[list]:
+                          view: Optional[View] = None) -> Optional[list]:
         """
         对查询集进行分页，成功返回数据列表，否则返回 None
         """
-        # 存在 page_size 参数即启用分页
-        page_number = request.query_params.get(self.page_query_param, 1)
+        # 存在 page 或 page_size 参数则启用分页
+        page_number = request.query_params.get(self.page_query_param)
+
+        # 兼容页面用数字、字符 和不指定页数的情况
+        if page_number and page_number.isdigit():
+            page_number = int(page_number)
+        elif page_number in self.last_page_strings:
+            page_number = -1
+        else:
+            page_number =  0
+
         page_size = self.get_page_size(request)
-        if not page_size:
-            return None
+
+        if page_number:
+            if not page_size:
+                page_size = self.default_page_size
+        else:
+            if page_size:
+                page_number = 1
+            else:
+                return None
 
         # 调用 django 的分页类得到分页器
         paginator = self.django_paginator_class(queryset, page_size)
-        if page_number in self.last_page_strings:
+        if page_number == -1:
             page_number = paginator.num_pages
 
         # 获取并设定指定的页面数据，无效页面则触发异常
@@ -65,7 +83,18 @@ class PagePagesizePaginator(PageNumberPagination):
         """
         return OrderedDict([
             ('total', self.page.paginator.count),
+            ('current', len(data)),
             ('next', self.get_next_link()),
             ('previous', self.get_previous_link()),
             ('data', data)
         ])
+
+    def get_previous_link(self):
+        """
+        获取上页链接
+        """
+        if not self.page.has_previous():
+            return None
+        url = self.request.build_absolute_uri()
+        page_number = self.page.previous_page_number()
+        return replace_query_param(url, self.page_query_param, page_number)

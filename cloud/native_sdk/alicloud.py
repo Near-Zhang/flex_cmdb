@@ -41,7 +41,8 @@ class ALiCloudNativeSDK(AbstractNativeSDK):
         except ServerException as e:
             return self._build_error_data(e)
         except ClientException as e:
-            raise CloudNativeSDKError(f'client error: {e.error_code}, {e.message}')
+            raise CloudNativeSDKError(
+                f'client error: {e.error_code}, {e.message}')
 
         return safe_json_loads(response)
 
@@ -84,17 +85,12 @@ class ALiCloudNativeSDK(AbstractNativeSDK):
         request.set_accept_format("json")
         return request
 
-    @staticmethod
-    def _build_error_data(e: ServerException) -> dict:
+    def _build_error_data(self, e: ServerException) -> dict:
         """
         根据异常来构造响应
         :param e: 异常对象
         :return: 响应字典
         """
-        return {
-            'Error': {
-                'Code': e.error_code,
-                'Message': e.message,
-                'RequestId': e.request_id
-            }
-        }
+        code = e.error_code or 'Unknown'
+        msg = e.message or 'Unknown'
+        return self._standard_error_data(code, msg)

@@ -1,5 +1,6 @@
 from typing import Tuple, List
 from .abstract import AbstractNativeSDK
+from ..exceptions import CloudNativeSDKError
 from utils import dynamic_import_class, safe_json_dumps, safe_json_loads
 from config import QCLOUD_KEY
 
@@ -42,14 +43,14 @@ class QCloudNativeSDK(AbstractNativeSDK):
         """
         assert self._already, 'request info has not been set，should use self.set()'
 
-        if self._interface in self._old_interface:
+        if self._interface['name'] in self._old_interface:
             return self._old_request()
         else:
             return self._request()
 
     @property
     def _old_interface(self) -> List[str]:
-        return ['DescribeProject', 'AddProject' ]
+        return ['DescribeProject', 'AddProject']
 
     def _request(self) -> dict:
         """
@@ -64,6 +65,8 @@ class QCloudNativeSDK(AbstractNativeSDK):
         try:
             resp = getattr(client, self._interface['name'])(req)
         except TencentCloudSDKException as e:
+            if not e.requestId:
+                raise CloudNativeSDKError(f'client error: {e.message}')
             return self._build_error_data(e)
 
         # 将结果反序列化为对象并输出
@@ -86,6 +89,8 @@ class QCloudNativeSDK(AbstractNativeSDK):
         try:
             resp = client.call(self._interface['name'], self._params)
         except TencentCloudSDKException as e:
+            if not e.requestId:
+                raise CloudNativeSDKError(f'client error: {e.message}')
             return self._build_error_data(e)
 
         # 将结果反序列化为对象并输出
@@ -116,11 +121,13 @@ class QCloudNativeSDK(AbstractNativeSDK):
         :return: 客户端对象
         """
         # 获取认证对象
-        if not self._credential: self._credential = self._get_credential()
+        if not self._credential:
+            self._credential = self._get_credential()
 
         # 获取客户端配置，包括 http 配置
         if not self._client_config:
-            if not self._http_config: self._http_config = self._get_http_config()
+            if not self._http_config:
+                self._http_config = self._get_http_config()
             self._client_config = ClientProfile(httpProfile=self._http_config)
 
         # 获取接口信息
@@ -130,7 +137,8 @@ class QCloudNativeSDK(AbstractNativeSDK):
         # 动态获取客户端类
         client_module_path = f'tencentcloud.{md}.{version}.{md}_client'
         client_class_name = f'{md.capitalize()}Client'
-        client_class = dynamic_import_class(f'{client_module_path}.{client_class_name}')
+        client_class = dynamic_import_class(
+            f'{client_module_path}.{client_class_name}')
 
         # 实例化客户端对象
         region = self._params.get('Region')
@@ -167,17 +175,12 @@ class QCloudNativeSDK(AbstractNativeSDK):
         config = HttpProfile(**kwargs)
         return config
 
-    @staticmethod
-    def _build_error_data(e: TencentCloudSDKException) -> dict:
+    def _build_error_data(self, e: TencentCloudSDKException) -> dict:
         """
         根据异常来构造响应
         :param e: 异常对象
         :return: 响应字典
         """
-        return {
-            'Error': {
-                'Code': e.code,
-                'Message': e.message,
-                'RequestId': e.requestId
-            }
-        }
+        code = e.code or 'Unknown',
+        msg = e.message or 'Unknown'
+        return self._standard_error_data(code, msg)

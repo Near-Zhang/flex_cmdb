@@ -1,9 +1,12 @@
 from typing import Optional, Union, Any
 from rest_framework.response import Response
 from rest_framework.views import set_rollback
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import Http404
+from django.conf import settings
 from rest_framework import exceptions, status
+from utils import logger
+import sys
 
 
 __all__ = [
@@ -21,7 +24,11 @@ __all__ = [
 ]
 
 
-def get_data_response(data: Union[dict, list, None], code: Optional[int]=200, **kwargs: Any) -> Response:
+def get_data_response(data: Union[dict,
+                                  list,
+                                  None],
+                      code: Optional[int] = 200,
+                      **kwargs: Any) -> Response:
     """
     构造返回数据的响应
     :param data: 数据
@@ -60,25 +67,37 @@ def normalized_exception_handler(exc: Exception, context: dict):
         exc = exceptions.NotFound()
     elif isinstance(exc, PermissionDenied):
         exc = exceptions.PermissionDenied()
-
     if not isinstance(exc, exceptions.APIException):
         exc = exceptions.APIException(exc.args)
 
     # 增加额外的响应头部
     headers = {}
     auth_header = getattr(exc, 'auth_header', None)
-    if auth_header: headers['WWW-Authenticate'] = auth_header
+    if auth_header:
+        headers['WWW-Authenticate'] = auth_header
 
     wait = getattr(exc, 'wait', None)
-    if wait: headers['Retry-After'] = wait
+    if wait:
+        headers['Retry-After'] = wait
 
     # 构造数据和回滚
-    data = f'{exc.default_code}: {str(exc.detail)}'
+    message = exc.detail
     set_rollback()
 
-    # 返回错误响应
-    return get_error_response(data, code=exc.status_code, headers=headers)
+    # 调试模式则触发异常
+    if settings.DEBUG:
+        raise exc
 
+    # 记录异常日志
+    request = context['request']
+    logger.exception(f'"{request.method} {request.get_full_path()}" Interval Server Error:', exc_info=sys.exc_info())
+
+    # 为响应打错误标记，便于记录请求日志
+    response = get_error_response(message, code=exc.status_code, headers=headers)
+    response.with_exception = exc
+
+    # 返回错误响应
+    return response
 
 ##### 列表路由的处理混合 #####
 
@@ -87,6 +106,7 @@ class ListModelMixin:
     """
     模型对象列表查询
     """
+
     def list(self, request, *args, **kwargs):
         # 过滤对象
         queryset = self.filter_queryset(self.get_queryset())
@@ -110,6 +130,7 @@ class BulkCreateModelMixin:
     """
     单个或批量模型对象创建
     """
+
     def create(self, request, *args, **kwargs):
         # 若为批量操作则使用 many 参数，进行序列化
         bulk = isinstance(request.data, list)
@@ -123,7 +144,9 @@ class BulkCreateModelMixin:
         self.perform_create(serializer)
 
         # 返回响应
-        return get_data_response(serializer.data, status=status.HTTP_201_CREATED)
+        return get_data_response(
+            serializer.data,
+            status=status.HTTP_201_CREATED)
 
     @staticmethod
     def perform_create(serializer):
@@ -137,26 +160,24 @@ class BulkUpdateModelMixin:
     """
     批量模型对象更新
     """
-    def get_object(self):
-        """
-        改装获取对象的方法
-        """
-        # 当路由中不包含用于定位的关键字参数时，直接进行返回，否则继续正常流程
-        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
-        if lookup_url_kwarg in self.kwargs:
-            return super(BulkUpdateModelMixin, self).get_object()
-        return
 
     def bulk_update(self, request, *args, **kwargs):
         """
         批量完整更新入口，同时被部分更新所调用
+        区别于批量删除，批量更新此处不检查对象级别权限，因为子序列化验证前再进行检查
         """
         # 确定是完整更新还是部分更新
         partial = kwargs.pop('partial', False)
+        queryset = self.filter_queryset(self.get_queryset())
+        update_queryset = self.get_update_queryset(queryset)
+
+        # 检查对象级别权限
+        for obj in update_queryset:
+            self.check_object_permissions(request, obj)
 
         # 进行自定义列表序列化的序列化
         serializer = self.get_serializer(
-            self.filter_queryset(self.get_queryset()),
+            update_queryset,
             data=request.data,
             many=True,
             partial=partial,
@@ -168,6 +189,34 @@ class BulkUpdateModelMixin:
 
         # 返回响应
         return get_data_response(serializer.data)
+
+    def get_update_queryset(self, queryset):
+        """
+        获取需要更新的查询集
+        """
+        # 确认用于定位的关键字参数
+        if not self.request.data: return None
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        # 组建参数值的列表
+        id_list = []
+        for item in self.request.data:
+            _id = item.get(lookup_url_kwarg)
+            if _id:
+                id_list.append(_id)
+            else:
+                raise ValidationError(
+                    f'All objects to update must have `{lookup_url_kwarg}`')
+
+        # 进行查询集过滤
+        update_queryset = queryset.filter(**{
+            lookup_url_kwarg + '__in': id_list})
+
+        # 检查需找到所有对象
+        if len(update_queryset) != len(id_list):
+            raise ValidationError('Could not find all objects to update.')
+
+        return update_queryset
 
     def partial_bulk_update(self, request, *args, **kwargs):
         kwargs['partial'] = True
@@ -200,37 +249,39 @@ class BulkDestroyModelMixin:
         queryset = self.filter_queryset(self.get_queryset())
         del_queryset = self.get_delete_queryset(queryset)
 
+        # 检查对象级别权限
+        for obj in del_queryset:
+            self.check_object_permissions(request, obj)
+
         # 执行批量删除
         if del_queryset:
             self.perform_bulk_destroy(del_queryset)
 
         # 返回响应
-        return get_data_response({'count': len(del_queryset)}, code=status.HTTP_204_NO_CONTENT)
+        return get_data_response(
+            {'count': len(del_queryset)}, code=status.HTTP_204_NO_CONTENT)
 
     def get_delete_queryset(self, queryset):
         """
         获取需要删除的查询集
         """
         # 确认用于定位的关键字参数
-        lookup_url_kwarg = self.lookup_field
+        if not self.request.data: return None
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
 
         # 组建参数值的列表
         id_list = []
         for item in self.request.data:
             v = item.get(lookup_url_kwarg)
-            if v: id_list.append(v)
-
-        if not id_list:
-            return None
+            if v:
+                id_list.append(v)
+            else:
+                raise ValidationError(
+                    f'All objects to update must have `{lookup_url_kwarg}`')
 
         # 进行查询集过滤
         filter_kwargs = {lookup_url_kwarg + '__in': id_list}
         del_queryset = queryset.filter(**filter_kwargs)
-
-        # 检查权限
-        for obj in del_queryset:
-            self.check_object_permissions(self.request, obj)
-
         return del_queryset
 
     @staticmethod
@@ -238,7 +289,9 @@ class BulkDestroyModelMixin:
         """
         执行单个对象删除
         """
+        instance.pre_delete()
         instance.delete()
+        instance.post_delete()
 
     def perform_bulk_destroy(self, objects):
         """
@@ -306,7 +359,8 @@ class UpdateModelMixin:
 
         # 获取对象并进行序列化
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
 
         # 验证数据并执行更新
         serializer.is_valid(raise_exception=True)
@@ -352,4 +406,6 @@ class DestroyModelMixin:
         """
         执行单个对象删除
         """
+        instance.pre_delete()
         instance.delete()
+        instance.post_delete()

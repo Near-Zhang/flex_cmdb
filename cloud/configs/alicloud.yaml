@@ -1,0 +1,182 @@
+region_required: True
+region_name: Region
+native_sdk: ALiCloudNativeSDK
+cleaner: ALiCloudCleaner
+req_limit: 20
+actions:
+
+  # 查询地域信息
+  query_regions:
+    region_required: False
+    interface:
+      name: DescribeRegions
+      module: ecs
+      version: v20140526
+      input_params: ~
+      output:
+        data: Regions.Region
+        fields:
+          flag:
+            src: data
+            key: RegionId
+            mapping: ~
+            default: ~
+          name:
+            src: data
+            key: LocalName
+            mapping: ~
+            default: ~
+          state:
+            src: ~
+            key: ~
+            mapping: ~
+            default: 0
+        hooks:
+          start:
+            base: ~
+            method: ~
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~
+
+  # 查询可用区信息
+  query_zones:
+    region_required: True
+    interface:
+      name: DescribeZones
+      module: ecs
+      version: v20140526
+      input_params:
+        - Region
+      output:
+        data: Zones.Zone
+        fields:
+          flag:
+            src: data
+            key: ZoneId
+            mapping: ~
+            default: ~
+          name:
+            src: data
+            key: LocalName
+            mapping: ~
+            default: ~
+          state:
+            src: ~
+            key: ~
+            mapping: ~
+            default: ~
+        hooks:
+          start:
+            base: ~
+            method: ~
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~
+
+  # 查询主机信息
+  query_hosts:
+    region_required: True
+    interface:
+      name: DescribeInstances
+      module: ecs
+      version: v20140526
+      input_params:
+        - Region
+      output:
+        data: Instances.Instance
+        fields:
+          instance_id:
+            src: data
+            key: InstanceId
+            mapping: ~
+            default: ~
+          name:
+            src: data
+            key: InstanceName
+            mapping: ~
+            default: ~
+          public_ip:
+            src: ~
+            key: ~
+            mapping: ~
+            default: ~
+          project:
+            src: data
+            key: ResourceGroupId
+            mapping: ~
+            default: ~
+        hooks:
+          start:
+            base: ~
+            method: ~
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~
+
+  # 查询监控数据
+  query_monitor_data:
+    region_required: True
+    interface:
+      name: DescribeMetricList
+      module: cms
+      version: v20190101
+      input_params:
+        - Region
+        - Namespace
+        - Dimensions
+        - MetricName
+        - Period
+        - StartTime
+        - EndTime
+      output:
+        data: Datapoints
+        fields:
+          hsot:
+            src: data
+            key: instanceId
+            mapping: ~
+            default: ~
+          metirc:
+            src: req
+            key: MetricName
+            mapping:
+              cpu_total: cpu_usage
+              load_1m: cpu_load
+              memory_usedutilization: mem_usage
+            default: ~
+          day:
+            src: data
+            key: Day
+            mapping: ~
+            default: ~
+          hour:
+            src: data
+            key: Hour
+            mapping: ~
+            default: ~
+          minute:
+            src: data
+            key: Minute
+            mapping: ~
+            default: ~
+          value:
+            src: data
+            key: Average
+            mapping: ~
+            default: ~
+        hooks:
+          start:
+            base: action
+            method: hook
+            kwargs: ~
+          end:
+            base: ~
+            method: ~
+            kwargs: ~

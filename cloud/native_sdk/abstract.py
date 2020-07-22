@@ -1,6 +1,9 @@
-from typing import Optional
+from typing import Optional, Union
 from abc import ABC, abstractmethod
 from ..exceptions import CloudNativeSDKError
+
+
+__all__ = ['AbstractNativeSDK']
 
 
 class AbstractNativeSDK(ABC):
@@ -24,8 +27,10 @@ class AbstractNativeSDK(ABC):
         :param params: 包含请求参数的字典
         """
         # 设置属性
-        if interface: self._interface.update(interface)
-        if params: self._params.update(params)
+        if interface:
+            self._interface.update(interface)
+        if params:
+            self._params.update(params)
 
         # 检查入参
         input_params = self._interface['input_params']
@@ -44,3 +49,18 @@ class AbstractNativeSDK(ABC):
         :return: 包含响应结果的字典
         """
         pass
+
+    @staticmethod
+    def _standard_error_data(code: Union[str, int], message: str) -> dict:
+        """
+        构建标准的错误响应
+        :param code: 错误码
+        :param message: 消息
+        :return: 响应字典
+        """
+        return {
+            'Error': {
+                'code': code,
+                'message': message
+            }
+        }

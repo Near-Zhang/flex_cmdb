@@ -1,9 +1,9 @@
-from common.viewsets import *
-from ..models import IDC, Region, Zone
-from ..serializers import IDCSerializer, RegionSerializer, ZoneSerializer
+from common.viewsets import BulkManageViewSet
+from ..models import IDC
+from ..serializers import IDCSerializer
 
 
-__all__ = ['IDCViewSet', 'RegionViewSet', 'ZoneViewSet']
+__all__ = ['IDCViewSet']
 
 
 class IDCViewSet(BulkManageViewSet):
@@ -15,20 +15,5 @@ class IDCViewSet(BulkManageViewSet):
     lookup_field = 'uuid'
 
 
-class RegionViewSet(BulkManageViewSet):
-    """
-    地域视图集
-    """
-    queryset = Region.objects.all()
-    serializer_class = RegionSerializer
-    lookup_field = 'uuid'
 
-
-class ZoneViewSet(BulkManageViewSet):
-    """
-    可用区视图集
-    """
-    queryset = Zone.objects.all()
-    serializer_class = ZoneSerializer
-    lookup_field = 'uuid'
 

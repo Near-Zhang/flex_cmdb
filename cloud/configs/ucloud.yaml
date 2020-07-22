@@ -1,0 +1,64 @@
+region_required: True
+region_name: Region
+native_sdk: UCloudNativeSDK
+cleaner: UCloudCleaner
+req_limit: 15
+actions:
+
+  # 查询地域信息
+  query_regions:
+    region_required: False
+    interface:
+      name: GetRegion
+      input_params: ~
+      output:
+        data_pos: Regions
+        data_fields:
+          flag:
+            key: Region
+            values: ~
+            default: ~
+          name:
+            key: Region
+            values:
+             cn-bj1: 北京一
+             cn-bj2: 北京二
+             cn-sh: 上海金融云
+             cn-sh2: 上海二
+             cn-gd: 广州
+             cn-gd2: 广州2
+             cn-qz: 福建
+             hk: 香港
+             tw-tp: 台北
+             tw-tp2: 台北二
+             tw-kh: 高雄
+             jpn-tky: 东京
+             kr-seoul: 首尔
+             th-bkk: 曼谷
+             sg: 新加坡
+             idn-jakarta: 雅加达
+             vn-sng: 胡志明市
+             us-ca: 洛杉矶
+             us-ws: 华盛顿
+             rus-mosc: 莫斯科
+             ge-fra: 法兰克福
+             uk-london: 伦敦
+             ind-mumbai: 孟买
+             uae-dubai: 迪拜
+             bra-saopaulo: 圣保罗
+             afr-nigeria: 拉各斯
+             ph-mnl: 马尼拉
+            default: ~
+          state:
+            key: ~
+            values: ~
+            default: 0
+        unique_fields:
+          - flag
+
+  query_zones:
+    region_required: False
+    interface:
+      name: GetRegion
+      input_params: ~
+      output_params: ~

@@ -17,4 +17,3 @@ router.register('zones', ZoneViewSet)
 # 合并路由
 urlpatterns.extend(router.urls)
 
-

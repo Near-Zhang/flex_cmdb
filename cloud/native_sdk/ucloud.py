@@ -1,6 +1,7 @@
 from typing import Optional, Tuple, Any
 from .abstract import AbstractNativeSDK
-import hashlib, requests
+import hashlib
+import requests
 from collections import OrderedDict
 from utils import safe_json_loads
 from config import UCLOUD_KEY
@@ -31,15 +32,17 @@ class UCloudNativeSDK(AbstractNativeSDK):
         """
         assert self._already, 'request info has not been set，should use self.set()'
 
-        url = self._url + self._build_url_params() + '&Signature=' + self._get_signature()
+        url = self._url + self._build_url_params() + '&Signature=' + \
+            self._get_signature()
         try:
             resp = requests.get(url, timeout=(3, 30))
             data = safe_json_loads(resp.content)
         except (requests.exceptions.ReadTimeout, requests.exceptions.ConnectTimeout):
-            data = {
+            resp = {
                 'RetCode': '502',
-                'Message': 'sdk request timeout'
+                'Message': 'request timeout'
             }
+            data = self._build_error_data(resp)
         return data
 
     @property
@@ -59,7 +62,13 @@ class UCloudNativeSDK(AbstractNativeSDK):
             'Action': self._interface['name'],
             'PublicKey': self._ak_sk[0]
         })
-        params_list = [k.replace('_', '.') + '=' + self._encode_value(self._params[k]) for k in self._params.keys()]
+        params_list = [
+            k.replace(
+                '_',
+                '.') +
+            '=' +
+            self._encode_value(
+                self._params[k]) for k in self._params.keys()]
         return '?' + '&'.join(params_list)
 
     def _get_signature(self) -> str:
@@ -68,7 +77,10 @@ class UCloudNativeSDK(AbstractNativeSDK):
         :return: 签名字符串
         """
         # 排序
-        params = OrderedDict(sorted(self._params.items(), key=lambda item: item[0]))
+        params = OrderedDict(
+            sorted(
+                self._params.items(),
+                key=lambda item: item[0]))
 
         # 拼接为字符串
         simplified = ""
@@ -97,3 +109,13 @@ class UCloudNativeSDK(AbstractNativeSDK):
         if isinstance(v, float):
             return str(int(v)) if v % 1 == 0 else str(v)
         return str(v)
+
+    def _build_error_data(self, resp: dict) -> dict:
+        """
+        根据错误响应来构造响应
+        :param e: 错误响应
+        :return: 响应字典
+        """
+        code = resp.get('RetCode', 'Unknown')
+        msg = resp.get('Message', 'Unknown')
+        return self._standard_error_data(code, msg)

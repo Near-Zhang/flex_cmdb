@@ -1,0 +1,22 @@
+region_name: Region
+req_limit: 15
+native_sdk: KSCloudNativeSDK
+actions:
+  query_regions:
+    region_required: False
+    interface:
+      name: describe_regions
+      module: kec
+      input_params:
+        - Account
+      output_params: ~
+  query_zones:
+    region_required: True
+    type: query
+    interface:
+      name: describe_availability_zones
+      module: kec
+      input_params:
+        - Account
+        - Region
+      output_params: ~

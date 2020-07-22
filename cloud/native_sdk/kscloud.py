@@ -1,10 +1,11 @@
 from typing import Tuple
 from .abstract import AbstractNativeSDK
+from ..exceptions import CloudNativeSDKError
 from config import KSCLOUD_KEY
 
 # KSCloud sdk
 from kscore.session import get_session
-
+from kscore.exceptions import ClientError, KSCoreError
 
 __all__ = ['KSCloudNativeSDK']
 
@@ -42,7 +43,14 @@ class KSCloudNativeSDK(AbstractNativeSDK):
                                        ks_access_key_id=self._ak_sk[0],
                                        ks_secret_access_key=self._ak_sk[1])
 
-        return getattr(client, self._interface['name'])()
+        try:
+            resp = getattr(client, self._interface['name'])()
+        except KSCoreError as e:
+            raise CloudNativeSDKError(f'client error: {e.args[0]}')
+        except ClientError as e:
+            return self._build_error_data(e)
+
+        return resp
 
     @property
     def _ak_sk(self) -> Tuple[str, str]:
@@ -52,3 +60,13 @@ class KSCloudNativeSDK(AbstractNativeSDK):
         """
         account = self._params.get('Account', self._default_region)
         return KSCLOUD_KEY.get(account)
+
+    def _build_error_data(self, e: ClientError) -> dict:
+        """
+        根据异常来构造响应
+        :param e: 异常对象
+        :return: 响应字典
+        """
+        code = e.response['Error'].get('Code', 'Unknown')
+        msg = e.response['Error'].get('Message', 'Unknown')
+        return self._standard_error_data(code, msg)
