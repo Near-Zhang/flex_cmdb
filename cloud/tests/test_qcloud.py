@@ -1,6 +1,5 @@
 from django.test import SimpleTestCase
 from cloud.native_sdk.qcloud import QcloudNativeSDK
-from cloud.models import CloudInterface
 from datetime import date
 
 

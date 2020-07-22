@@ -1,6 +1,5 @@
 from django.test import SimpleTestCase
 from cloud.native_sdk.alicloud import AlicloudNativeSDK
-from cloud.models import CloudInterface
 from datetime import date
 
 
@@ -48,6 +47,7 @@ class TestALiCloudNativeSDK(SimpleTestCase):
         """
         self.sdk.set(**self.region_interface)
         resp = self.sdk.request()
+        print(resp)
         self.assertIn('Regions', resp)
 
     def test_zone_interface(self):
@@ -56,4 +56,5 @@ class TestALiCloudNativeSDK(SimpleTestCase):
         """
         self.sdk.set(**self.zone_interface)
         resp = self.sdk.request()
+        print(resp)
         self.assertIn('Zones', resp)

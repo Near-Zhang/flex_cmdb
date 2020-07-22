@@ -6,7 +6,7 @@
 SECRET_KEY = 'tx8!1o-_h8v74h!&$k-khbp_g8ad3=*dpinn_l8iz@5^p#p_7d'
 
 # Mysql 相关配置
-MYSQL_NAME = 'flex_finance'
+MYSQL_NAME = 'flex_cmdb'
 MYSQL_HOST = '192.168.1.250'
 MYSQL_PORT = '3307'
 MYSQL_USER = 'root'
