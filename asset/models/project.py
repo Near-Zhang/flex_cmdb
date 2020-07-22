@@ -1,11 +1,11 @@
 from django.db import models
-from common.models import BaseModel
+from common.models import DisplayModel
 
 
 __all__ = ['Project']
 
 
-class Project(BaseModel):
+class Project(DisplayModel):
     """
     项目信息，通过供应商接口来获取
     IDC - o2m -> Project

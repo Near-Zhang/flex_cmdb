@@ -17,3 +17,9 @@ class CloudNativeSDKError(Exception):
     云原生 SDK 调用错误
     """
     pass
+
+class CloudSDKClientError(Exception):
+    """
+    云 SDK 客户端调用错误
+    """
+    pass

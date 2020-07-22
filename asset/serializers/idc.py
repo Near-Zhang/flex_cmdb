@@ -1,12 +1,11 @@
-from common.serializers import ResourceSerializer, BulkListSerializer
-from rest_framework_bulk import BulkSerializerMixin
+from common.serializers import BulkSerializerMixin, DisplaySerializer, BulkListSerializer
 from ..models import IDC
 
 
 __all__ = ['IDCSerializer']
 
 
-class IDCSerializer(BulkSerializerMixin, ResourceSerializer):
+class IDCSerializer(BulkSerializerMixin, DisplaySerializer):
     """
     供应商模型序列化器
     """

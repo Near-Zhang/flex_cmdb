@@ -1,5 +1,5 @@
 from django.db import models
-from common.models import ResourceModel
+from common.models import DisplayModel
 
 
 __all__ = ['Region', 'Zone']
@@ -13,7 +13,7 @@ RegionState = (
 )
 
 
-class Region(ResourceModel):
+class Region(DisplayModel):
     """
     地域信息，通过云接口同步
     IDC - o2m -> Region
@@ -35,7 +35,7 @@ class Region(ResourceModel):
     idc = models.CharField(max_length=32, verbose_name='供应商UUID')
 
 
-class Zone(ResourceModel):
+class Zone(DisplayModel):
     """
     可用区信息，通过云接口同步
     Region - o2m -> Zone

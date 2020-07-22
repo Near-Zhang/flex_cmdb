@@ -1,11 +1,11 @@
 from django.db import models
-from common.models import ResourceModel
+from common.models import DisplayModel
 
 
 __all__ = ['IDC']
 
 
-class IDC(ResourceModel):
+class IDC(DisplayModel):
     """
     供应商信息，通过自行录入
     """

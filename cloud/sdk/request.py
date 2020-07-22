@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import List, Optional, Any
-from ..config import cloud_config
+from ..configs.core import cloud_config
 from ..exceptions import CloudSDKRequestError
 from copy import deepcopy
 from math import ceil

@@ -1,11 +1,11 @@
 from django.db import models
-from common.models import BaseModel
+from common.models import DisplayModel
 
 
 __all__ = ['Image']
 
 
-class Image(BaseModel):
+class Image(DisplayModel):
     """
     镜像信息，通过供应商接口来获取和同步
     """

@@ -1,11 +1,11 @@
 from django.db import models
-from common.models import BaseModel
+from common.models import DisplayModel
 
 
 __all__ = ['Count']
 
 
-class Count(BaseModel):
+class Count(DisplayModel):
     """
     资源记录统计信息，通过供应商接口来获取
     """

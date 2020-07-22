@@ -2,7 +2,7 @@ from django.views import View
 from django.http import JsonResponse
 from asset.models import *
 from utils import safe_json_dumps
-from ..sdk.reuqest import CloudSDKRequest
+from ..sdk.request import CloudSDKRequest
 from ..sdk import CloudSDKClient
 from ..configs import cloud_config
 import time
