@@ -1,7 +1,7 @@
 from typing import Optional, Any
 from abc import ABC, abstractmethod
 from utils import safe_json_loads
-from ..sdk import CloudSDKInterRequest
+from ..sdk import CloudSDKLowLayerRequest
 
 
 __all__ = ['AbstractCloudCleaner']
@@ -12,7 +12,7 @@ class AbstractCloudCleaner(ABC):
     抽象的云清洗器，用于定义统一方法
     """
 
-    def __init__(self, request: CloudSDKInterRequest) -> None:
+    def __init__(self, request: CloudSDKLowLayerRequest) -> None:
         """
         初始化
         :param request: 请求对象

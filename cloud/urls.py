@@ -3,6 +3,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from django.urls import path
 from .tests.test import Test
 
+
 # django 定义路由
 urlpatterns = format_suffix_patterns([
     # 路由条目

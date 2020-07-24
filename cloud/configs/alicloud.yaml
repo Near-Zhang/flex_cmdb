@@ -1,13 +1,19 @@
-region_required: True
-region_name: Region
-native_sdk: ALiCloudNativeSDK
-cleaner: ALiCloudCleaner
-req_limit: 20
-actions:
+settings:
+  native_sdk: ALiCloudNativeSDK
+  cleaner: ALiCloudCleaner
+  req_limit: 20
+  region_str: Region
+  paging_base: page
+  limit_str: PageSize
+  limit_max: 100
+  offset_str: PageNumber
+  offset_init: 1
 
-  # 查询地域信息
-  query_regions:
-    region_required: False
+actions:
+  query_regions:                    # 查询地域信息
+    settings:
+      region_required: False
+      paging_required: False
     interface:
       name: DescribeRegions
       module: ecs
@@ -41,9 +47,10 @@ actions:
             method: ~
             kwargs: ~
 
-  # 查询可用区信息
-  query_zones:
-    region_required: True
+  query_zones:                      # 查询可用区信息
+    settings:
+      region_required: True
+      paging_required: False
     interface:
       name: DescribeZones
       module: ecs
@@ -78,9 +85,10 @@ actions:
             method: ~
             kwargs: ~
 
-  # 查询主机信息
-  query_hosts:
-    region_required: True
+  query_hosts:                        # 查询主机信息
+    settings:
+      region_required: True
+      paging_required: True
     interface:
       name: DescribeInstances
       module: ecs

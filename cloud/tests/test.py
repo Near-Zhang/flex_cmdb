@@ -10,70 +10,23 @@ import time
 class Test(View):
 
     def get(self, request):
+
         req = CloudSDKRequest(
-            'alicloud', 'query_hosts', {
-                'Region': 'cn-shenzhen',
-                'Account': 'ksyun_kdxss@ijunhai.com'})
+            'alicloud', 'query_hosts', region_mode=0, record_count=0, **{
+                'Region': 'cn-shanghai'
+            })
 
-        r = []
-        start = time.time()
-        # req = CloudSDKRequest('qcloud',
-        #                       'query_monitor_data',
-        #                       {
-        #                           'Region': 'ap-guangzhou',
-        #                           'Namespace': 'QCE/CVM',
-        #                            'MetricName': 'CPUUsage',
-        #                            'Instances': [{
-        #                                'Dimensions':[{
-        #                                    'Name': 'InstanceId',
-        #                                    'Value': 'ins-3axmy46k'
-        #                                },{
-        #                                    'Name': 'InstanceId',
-        #                                    'Value': 'ins-khzqypgq'
-        #                                }
-        #                                ]
-        #                            }],
-        #                            'Period': 60,
-        #                            'StartTime': '2020-03-21 00:00:00',
-        #                            'EndTime': '2020-03-24 00:00:00'
-        #                       })
-        # #
-        # client = CloudSDKClient()
-        # resp = client.execute(req)
-        # r.extend(resp['data'])
-        middle = time.time()
-        print(middle-start)
+        # for r in req:
+        #     print(r.params)
 
-        # req = CloudSDKRequest('alicloud',
-        #                       'query_monitor_data',
-        #                       {
-        #                           'Region': 'cn-shenzhen',
-        #                           'Namespace': "acs_ecs_dashboard",
-        #                           'MetricName': 'cpu_total',
-        #                           'Dimensions': [
-        #                               {'instanceId': 'i-wz91xbt2dbgtsxasvpuu'}
-        #                           ],
-        #                           'Period': 60,
-        #                           'StartTime': '2020-03-25 00:00:00',
-        #                           'EndTime': '2020-03-28 00:00:00'
-        #                       })
-        #
-        #
+
         client = CloudSDKClient()
         resp = client.execute(req)
-        r.extend(resp['data'])
-        end = time.time()
-        print(end - middle)
-        print(len(r))
-        resp = {
-            'data': r
-        }
 
+        print(resp.data)
+        print(resp.total)
+        print(resp.current)
 
-        # client = CloudSDKClient()
-        # resp = client.execute(req)
-        # print(resp)
-
-        return JsonResponse(resp)
+        return JsonResponse(resp.to_dict())
 
 

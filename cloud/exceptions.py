@@ -1,25 +1,32 @@
-class CloudDataError(Exception):
+class CloudException(Exception):
     """
-    云数据错误
+    Cloud 包的总异常
+    """
+    pass
+
+class CloudSDKRequestError(CloudException):
+    """
+    云 SDK 请求错误
     """
     pass
 
 
-class CloudSDKRequestError(Exception):
+class CloudSDKClientError(CloudException):
     """
-    云统一 SDK 请求错误
+    云 SDK 客户端调用错误
     """
     pass
 
 
-class CloudNativeSDKError(Exception):
+class CloudNativeSDKError(CloudException):
     """
     云原生 SDK 调用错误
     """
     pass
 
-class CloudSDKClientError(Exception):
+
+class CloudDataError(CloudException):
     """
-    云 SDK 客户端调用错误
+    云数据错误
     """
     pass
