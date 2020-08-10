@@ -12,13 +12,12 @@ class Test(View):
     def get(self, request):
 
         req = CloudSDKRequest(
-            'alicloud', 'query_hosts', region_mode=0, record_count=0, **{
-                'Region': 'cn-shanghai'
-            })
+            'alicloud', 'query_regions', region_mode=0, record_count=0
+            # **{'Region': 'ap-beijing'}
+        )
 
         # for r in req:
         #     print(r.params)
-
 
         client = CloudSDKClient()
         resp = client.execute(req)

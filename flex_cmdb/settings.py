@@ -224,7 +224,7 @@ LOGGING = {
         'default': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(LOG_DIR, "finance.log"),
+            'filename': os.path.join(LOG_DIR, "cmdb.log"),
             'maxBytes': 1024 * 1024 * 50,
             'backupCount': 3,
             'formatter': 'standard',

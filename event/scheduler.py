@@ -85,3 +85,46 @@ class SchedulerServer(metaclass=SingletonMeta):
         return {
             job.name: job.id
         }
+
+    def add_interval_job(self, job_cls: str, interval_kwargs: dict, *args, **kwargs) -> dict:
+        """
+        添加间隔性任务
+        :param job_cls: 作业类
+        :param interval_kwargs: 间隔参数
+        :param args: 作业初始化位置参数
+        :param kwargs: 作业初始化关键字参数
+        :return: 任务名字对应 id 的字段
+        """
+
+        # 获取作业类
+        job_cls = dynamic_import_class(job_cls)
+        job_ins = job_cls(*args, **kwargs)
+
+        # 构造调度器的作业添加参数
+        func_kwargs = {
+            'func': job_ins.run,
+            'args': None,
+            'kwargs': None
+        }
+        job_kwargs = {
+            'id': job_ins.id,
+            'name': job_ins.name
+        }
+        trigger_kwargs = {
+            'trigger': 'interval',
+            "start_date": None,
+            "timezone": settings.TIME_ZONE,
+            **interval_kwargs
+        }
+
+        # 添加作业
+        job = self._scheduler.add_job(**{
+            **func_kwargs,
+            **trigger_kwargs,
+            **job_kwargs
+        })
+
+        return {
+            job.name: job.id
+        }
+

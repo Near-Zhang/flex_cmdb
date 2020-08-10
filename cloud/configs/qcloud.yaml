@@ -1,13 +1,19 @@
-region_required: True
-region_name: Region
-native_sdk: QCloudNativeSDK
-cleaner: QCloudCleaner
-req_limit: 20
-actions:
+settings:
+  native_sdk: QCloudNativeSDK
+  cleaner: QCloudCleaner
+  req_limit: 20
+  paging_base: offset
+  limit_str: Limit
+  limit_max: 100
+  offset_str: Offset
+  offset_init: 0
 
+actions:
   # 查询地域信息
   query_regions:
-    region_required: False
+    settings:
+      region_required: False
+      paging_required: False
     interface:
       name: DescribeRegions
       module: cvm
@@ -46,7 +52,9 @@ actions:
 
   # 查询可用区信息
   query_zones:
-    region_required: True
+    settings:
+      region_required: False
+      paging_required: False
     interface:
       name: DescribeZones
       module: cvm
@@ -86,7 +94,9 @@ actions:
 
   # 查询主机信息
   query_hosts:
-    region_required: True
+    settings:
+      region_required: False
+      paging_required: True
     interface:
       name: DescribeInstances
       module: cvm
@@ -128,7 +138,9 @@ actions:
 
   # 查询项目信息
   query_projects:
-    region_required: False
+    settings:
+      region_required: False
+      paging_required: False
     interface:
       name: DescribeProject
       module: account
@@ -159,7 +171,9 @@ actions:
 
   # 查询监控数据
   query_monitor_data:
-    region_required: True
+    settings:
+      region_required: False
+      paging_required: False
     interface:
       name: GetMonitorData
       module: monitor
