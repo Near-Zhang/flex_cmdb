@@ -47,5 +47,5 @@ sqlparse==0.3.1
 tencentcloud-sdk-python==3.0.128
 traitlets==4.3.3
 tzlocal==2.0.0
-urllib3==1.25.8
+urllib3==1.26.5
 wcwidth==0.1.9
