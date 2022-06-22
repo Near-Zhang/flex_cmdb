@@ -28,7 +28,7 @@ jmespath==0.9.5
 ksc-sdk-python==1.3.29
 line-profiler==3.0.2
 mysqlclient==1.4.6
-numpy==1.18.2
+numpy==1.22.0
 pandas==1.0.3
 parso==0.6.2
 pexpect==4.8.0
